@@ -1,0 +1,107 @@
+package com.taotao.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.taotao.common.pojo.EUDataGridResult;
+import com.taotao.common.utils.TaotaoResult;
+import com.taotao.mapper.TbItemCatMapper;
+import com.taotao.mapper.TbItemParamMapper;
+import com.taotao.pojo.TbItemCat;
+import com.taotao.pojo.TbItemParam;
+import com.taotao.pojo.TbItemParamExample;
+import com.taotao.service.ItemParamService;
+
+@Service
+public class ItemParamServiceImpl implements ItemParamService {
+
+	@Autowired
+	private TbItemParamMapper itemParamMapper;
+	@Autowired
+	private TbItemCatMapper itemCatMapper;
+	
+	
+	@Override
+	public EUDataGridResult getItemList(int page, int rows) {
+		// TODO Auto-generated method stub
+		//查询商品规格列表
+		TbItemParamExample example=new TbItemParamExample();
+		
+		//分页获取数据
+		PageHelper.startPage(page, rows);
+		List<TbItemParam> list = itemParamMapper.selectByExampleWithBLOBs(example);
+		
+		//返回值对象
+		EUDataGridResult result=new EUDataGridResult();
+		
+		List<Object> dataList=new ArrayList<Object>();
+		for (TbItemParam tbItemParam : list) {
+			HashMap<String, Object> resultMap = new HashMap();
+	        resultMap.put("id",tbItemParam.getId());
+	        resultMap.put("itemCatId",tbItemParam.getItemCatId());
+	        
+	        TbItemCat itemCat = itemCatMapper.selectByPrimaryKey(tbItemParam.getItemCatId());
+	        resultMap.put("itemCatName",itemCat.getName());
+	        
+//	        TbItemCatExample catExample = new TbItemCatExample();
+//	        Criteria criteria = catExample.createCriteria();
+//	        criteria.andIdEqualTo(tbItemParam.getItemCatId());
+//	        List<TbItemCat> catelist = this.itemCatMapper.selectByExample(catExample);
+//	        
+//	        resultMap.put("itemCatName",catelist!=null && catelist.size()>0 ? catelist.get(0).getName() : "");
+	        resultMap.put("created",tbItemParam.getCreated());
+	        resultMap.put("updated",tbItemParam.getUpdated());
+	        resultMap.put("paramData",tbItemParam.getParamData());
+	        dataList.add(resultMap);
+		}		
+		
+		result.setRows(dataList);
+		
+		//取记录总数
+//		PageInfo pageInfo=new PageInfo(list);
+		PageInfo<TbItemParam> pageInfo=new PageInfo<TbItemParam>(list);
+		long total = pageInfo.getTotal();
+		result.setTotal(total);
+		
+		return result;
+	}
+	
+	/**
+	 * 根据商品分类Id获取参数
+	 */
+	@Override
+	public TaotaoResult getItemParamByCid(long cid) {
+		TbItemParamExample example = new TbItemParamExample();
+		com.taotao.pojo.TbItemParamExample.Criteria criteria = example.createCriteria();
+		criteria.andItemCatIdEqualTo(cid);
+		List<TbItemParam> list = itemParamMapper.selectByExampleWithBLOBs(example);
+		//判断是否查询到结果
+		if (list != null && list.size() > 0) {
+			return TaotaoResult.ok(list.get(0));
+		}
+		
+		return TaotaoResult.ok();
+	}
+
+	/**
+	 * 插入商品规格参数
+	 */
+	@Override
+	public TaotaoResult insertItemParam(TbItemParam itemParam) {
+		//补全pojo
+		itemParam.setCreated(new Date());
+		itemParam.setUpdated(new Date());
+		//插入到规格参数模板表
+		itemParamMapper.insert(itemParam);
+		return TaotaoResult.ok();
+	}
+
+	
+}

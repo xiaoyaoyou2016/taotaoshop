@@ -1,0 +1,8 @@
+package com.taotao.service;
+
+import com.taotao.common.pojo.EUDataGridResult;
+
+public interface ContentService {
+
+	EUDataGridResult getItemList(Long categroyId, Integer page,Integer rows);
+}

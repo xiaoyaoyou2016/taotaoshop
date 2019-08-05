@@ -1,0 +1,10 @@
+#FTP相关配置
+FTP_ADDRESS=140.143.22.234
+FTP_PORT=21
+FTP_USER_NAME=zlb
+FTP_PASSWORD=Zlb123
+FTP_BASE_PATH=/home/ftpuser/www/images
+
+#图片服务器配置
+FILI_UPLOAD_PATH=D:/temp/imagestest/webapps/images
+IMAGE_BASE_URL=http://localhost:9000/images
